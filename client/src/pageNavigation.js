@@ -26,4 +26,6 @@ export function initPages(Clnt) {
     document.getElementById('btn4').addEventListener('click', _ => switchTo('creatingPage', 'mainPage'));
     document.getElementById('btn5').addEventListener('click', _ => joinRoom(document.getElementById('inRoomId')));
     document.getElementById('btn6').addEventListener('click', _ => switchTo('joiningPage', 'mainPage'));
+
+    document.getElementById('game').addEventListener('contextmenu', e => e.preventDefault());
 }
