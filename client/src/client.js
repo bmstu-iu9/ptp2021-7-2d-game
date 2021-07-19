@@ -10,7 +10,7 @@ Client.socket = io();
 Client.socket.on('startGame', function() {
     switchTo('gameWaiting', 'game');
 });
-Client.socket.on('playerConnectedToRoom', function(numPlayers, roomSize) {
+Client.socket.on('changePlayerCounterInRoom', function(numPlayers, roomSize) {
     document.getElementById('playerCounter').innerHTML = `Waiting for other players (${numPlayers}/${roomSize})`;
 });
 Client.socket.on('initRoomSettings', function(roomID, size) {
@@ -18,8 +18,8 @@ Client.socket.on('initRoomSettings', function(roomID, size) {
     Client.Room.size = size;
     document.getElementById('roomID').innerHTML = roomID;
 });
-Client.socket.on('youEnteredRoom', function() {
-    switchTo('joiningPage', 'gamingPage');
+Client.socket.on('youEnteredRoom', function(fromID) {
+    switchTo(fromID, 'gamingPage');
 })
 
 initPages(Client);

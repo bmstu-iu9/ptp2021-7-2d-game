@@ -8,10 +8,7 @@ export function switchTo(fromID, toID) {
 function createRoom(fromID, toID) {
     let playerNum = document.getElementById('playerNum').value;
     Client.Room.size = playerNum;
-    if (playerNum) {
-        switchTo(fromID, toID);
-        Client.socket.emit('createRoom', playerNum);
-    }
+    Client.socket.emit('createRoom', playerNum);
 }
 
 function joinRoom(roomID) {

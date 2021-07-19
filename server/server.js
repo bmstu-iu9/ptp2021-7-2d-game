@@ -22,28 +22,58 @@ httpServer.listen(port, function() {
 
 io.on('connection', function(socket) {
     socket.on('createRoom', function(size) {
-        if (size >= 2 && size <= 10) {
+        let sizeInt = parseInt(size);
+        if (sizeInt >= 2 & sizeInt <= 10) {
             let roomID = socket.id;
-            io.sockets.adapter.rooms.get(roomID).gameStarted = false;
-            io.sockets.adapter.rooms.get(roomID).maxSize = size;
+            socket.adapter.rooms.get(roomID).isGaming = true;
+            socket.adapter.rooms.get(roomID).gameStarted = false;
+            socket.adapter.rooms.get(roomID).maxSize = sizeInt;
 
             socket.join(roomID);
-            socket.emit('initRoomSettings', roomID, size);
-            socket.emit('playerConnectedToRoom', 1, size);
+            socket.emit('initRoomSettings', roomID, sizeInt);
+            socket.emit('changePlayerCounterInRoom', 1, sizeInt);
+            socket.emit('youEnteredRoom', 'creatingPage');
         }
     });
 
     socket.on('joinRoom', function(roomID) {
-        if (io.sockets.adapter.rooms.get(roomID) && !io.sockets.adapter.rooms.get(roomID).gameStarted) {
-            let size = io.sockets.adapter.rooms.get(roomID).maxSize;
+        if (socket.adapter.rooms.get(roomID) && !socket.adapter.rooms.get(roomID).gameStarted) {
+            let size = socket.adapter.rooms.get(roomID).maxSize;
             socket.join(roomID);
-            socket.emit('youEnteredRoom');
+            socket.emit('youEnteredRoom', 'joiningPage');
             socket.emit('initRoomSettings', roomID, size);
-            io.to(roomID).emit('playerConnectedToRoom', io.sockets.adapter.rooms.get(roomID).size, size);
-            if (io.sockets.adapter.rooms.get(roomID).size == size) {
+            io.to(roomID).emit('changePlayerCounterInRoom', socket.adapter.rooms.get(roomID).size, size);
+            if (socket.adapter.rooms.get(roomID).size == size) {
                 io.to(roomID).emit('startGame');
-                io.sockets.adapter.rooms.get(roomID).gameStarted = true;
+                socket.adapter.rooms.get(roomID).gameStarted = true;
+            }
+        }
+    });
+
+    socket.on('disconnecting', function() {
+        let roomID = findGamingRoom(socket);
+        if (roomID) {
+            let room = socket.adapter.rooms.get(roomID);
+            if (!room.gameStarted) {
+                io.to(roomID).emit('changePlayerCounterInRoom', room.size-1, room.maxSize);
             }
         }
     });
 });
+
+function findGamingRoom(socket) {
+    for (const [roomID, room] of socket.adapter.rooms) {
+        let arr = Array.from(room);
+        let ok = false;
+        for (const x of arr) {
+            if (x == socket.id) {
+                ok = true;
+                break;
+            }
+        }
+        if(ok & room.isGaming) {
+            return roomID;
+        }
+    }
+    return null;
+}
