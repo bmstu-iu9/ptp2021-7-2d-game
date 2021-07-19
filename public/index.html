@@ -2,9 +2,61 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <title>Magic Fight</title>
+    <link rel="stylesheet" href="public/styles/index.css">
 </head>
+
 <body>
-    <div id="game"></div>
+    <div class="page" id="mainPage" style="display: flex;">
+        <div class="menu">
+            <h1>Magic Fight</h1>
+            <div class="button-holder">
+                <button id="btn1">Create</button>
+                <br>
+                <button id="btn2">Join</button>
+            </div>
+            <a href="https://github.com/bmstu-iu9/ptp2021-7-2d-game">GitHub</a>
+        </div>
+    </div>
+
+    <div class="page" id="creatingPage" style="display: none;">
+        <div class="menu">
+            <label>Number of players (2-10): </label>
+            <input type="number" id="playerNum" min="2" max="10">
+            <div class="button-holder">
+                <button id="btn3">Create</button>
+                <br>
+                <button id="btn4">Back</button>
+            </div>  
+        </div>
+    </div>
+
+
+    <div class="page" id="joiningPage" style="display: none;">
+        <div class="menu">
+            <label>Enter room id: </label>
+            <input type="text" id="inRoomId">
+            <div class="button-holder">
+                <button id="btn5">Join</button>
+                <br>
+                <button id="btn6">Back</button>
+            </div>  
+        </div>
+    </div>
+
+    <div class="page" id="gamingPage" style="display: none;">
+        <div class="menu" id="gameWaiting">
+            <label>RoomID: </label>
+            <label id="roomID"></label>
+            <br>
+            <label id="playerCounter">Waiting for other players ()</label>
+        </div>
+        <div id="game" style="display: none;"></div>
+    </div>
+
     <script src="dist/bundle.js"></script>
 </body>
+
 </html>
