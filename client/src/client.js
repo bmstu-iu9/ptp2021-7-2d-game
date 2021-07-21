@@ -1,25 +1,25 @@
 import { io } from "socket.io-client";
-import { initPages, switchTo } from "./pageNavigation.js";
+import { PageNavigation } from "./pageNavigation.js";
+import { PhaserGame } from "./game/game.js";
 
-const Client = {
-    Room: {}
+const Client = { 
+    socket: io()
 };
-Client.socket = io();
 
-//FOR ROOM
+const pageNav = new PageNavigation(Client);
+
 Client.socket.on('startGame', function() {
-    switchTo('gameWaiting', 'game');
+    PageNavigation.switchTo('gameWaiting', 'game');
+    new PhaserGame(Client.socket); 
 });
 Client.socket.on('changePlayerCounterInRoom', function(numPlayers, roomSize) {
     document.getElementById('playerCounter').innerHTML = `Waiting for other players (${numPlayers}/${roomSize})`;
 });
-Client.socket.on('initRoomSettings', function(roomID, size) {
-    Client.Room.id = roomID;
-    Client.Room.size = size;
+Client.socket.on('initRoomSettings', function(roomID) {
     document.getElementById('roomID').innerHTML = roomID;
 });
 Client.socket.on('youEnteredRoom', function(fromID) {
-    switchTo(fromID, 'gamingPage');
-})
+    PageNavigation.switchTo(fromID, 'gamingPage');
+});
 
-initPages(Client);
+pageNav.initPages();

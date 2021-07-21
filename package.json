@@ -11,6 +11,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@geckos.io/phaser-on-nodejs": "^1.2.4",
+    "@geckos.io/snapshot-interpolation": "^1.0.2",
     "express": "^4.17.1",
     "phaser": "^3.55.2",
     "socket.io": "^4.1.3"
