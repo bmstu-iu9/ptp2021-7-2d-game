@@ -20,6 +20,7 @@ Client.socket.on('initRoomSettings', function(roomID) {
 });
 Client.socket.on('youEnteredRoom', function(fromID) {
     PageNavigation.switchTo(fromID, 'gamingPage');
+	pageNav.fromPageID = fromID;
 });
 
 pageNav.initPages();

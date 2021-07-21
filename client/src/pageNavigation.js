@@ -1,6 +1,8 @@
 export class PageNavigation {
+	fromPageID
+	
     constructor(Client) {
-        this.Client = Client; 
+        this.Client = Client;
     }
 
     initPages() {
@@ -10,7 +12,8 @@ export class PageNavigation {
         document.getElementById('btn4').addEventListener('click', _ => PageNavigation.switchTo('creatingPage', 'mainPage'));
         document.getElementById('btn5').addEventListener('click', _ => this.#joinRoom(document.getElementById('inRoomId').value));
         document.getElementById('btn6').addEventListener('click', _ => PageNavigation.switchTo('joiningPage', 'mainPage'));
-    
+		document.getElementById('btn7').addEventListener('click', _ => this.#exitRoom());
+   
         document.getElementById('game').addEventListener('contextmenu', e => e.preventDefault());
     }
 
@@ -27,4 +30,9 @@ export class PageNavigation {
     #joinRoom(roomID) {
         this.Client.socket.emit('joinRoom', roomID);
     }
+	
+	#exitRoom() {
+		PageNavigation.switchTo('gamingPage', this.fromPageID);
+		this.Client.socket.emit('leaveRoom');		
+	}
 }

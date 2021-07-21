@@ -24,7 +24,7 @@
     <div class="page" id="creatingPage" style="display: none;">
         <div class="menu">
             <label>Number of players (2-10): </label>
-            <input type="number" id="playerNum" min="2" max="10">
+            <input type="number" id="playerNum" min="2" max="10" onkeydown="return event.keyCode === 8 || event.keyCode === 46 ? true : !isNaN(Number(event.key))">
             <div class="button-holder">
                 <button id="btn3">Create</button>
                 <br>
@@ -52,6 +52,9 @@
             <label id="roomID"></label>
             <br>
             <label id="playerCounter">Waiting for other players ()</label>
+            <div class="button-holder">
+                <button id="btn7">Leave the room</button>
+            </div>			
         </div>
         <div id="game" style="display: none;"></div>
     </div>
