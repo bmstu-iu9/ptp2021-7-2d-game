@@ -26,10 +26,12 @@ const games = new Map();
 io.on('connection', function(socket) {
     socket.on('createRoom', function(size) {
         if (size >= 2 & size <= 10) {
-            let roomID = socket.id; 
+            const roomID = socket.id; 
+
             socket.join(roomID);
-			let room = socket.adapter.rooms.get(roomID);
-			room.gameStarted = false;
+
+            const room = socket.adapter.rooms.get(roomID);
+            room.gameStarted = false;
             room.maxSize = size;
 
             socket.emit('initRoomSettings', roomID);
@@ -41,9 +43,9 @@ io.on('connection', function(socket) {
     });
 
     socket.on('joinRoom', function(roomID) {
-		let room = socket.adapter.rooms.get(roomID)
+        const room = socket.adapter.rooms.get(roomID)
         if (room && !room.gameStarted) {
-            let maxSize = room.maxSize; 
+            const maxSize = room.maxSize; 
             socket.join(roomID);
 
             socket.emit('youEnteredRoom', 'joiningPage');
@@ -58,23 +60,23 @@ io.on('connection', function(socket) {
             }
         }
     });
-	
-	socket.on('leaveRoom', function() {
-		let roomID = socket.roomID;
-		if (roomID) {
-			let room = socket.adapter.rooms.get(roomID);
-			socket.leave(roomID);
-			if (!room.gameStarted) {
-				io.to(roomID).emit('changePlayerCounterInRoom', room.size, room.maxSize);			
-			}
-			socket.roomID = null;
-		}
-	});	
+
+    socket.on('leaveRoom', function() {
+        const roomID = socket.roomID;
+        if (roomID) {
+            const room = socket.adapter.rooms.get(roomID);
+            socket.leave(roomID);
+            if (!room.gameStarted) {
+                io.to(roomID).emit('changePlayerCounterInRoom', room.size, room.maxSize);			
+            }
+            socket.roomID = null;
+        }
+    });	
 
     socket.on('disconnecting', function() {
-        let roomID = socket.roomID;
+        const roomID = socket.roomID;
         if (roomID) {
-            let room = socket.adapter.rooms.get(roomID);
+            const room = socket.adapter.rooms.get(roomID);
             if (!room.gameStarted) {
                 io.to(roomID).emit('changePlayerCounterInRoom', room.size-1, room.maxSize);
             } else {
@@ -88,7 +90,7 @@ io.on('connection', function(socket) {
     });
 
     socket.on('movement', function(movement) {
-        let roomID = socket.roomID; 
+        const roomID = socket.roomID; 
         if (roomID) {
             games.get(roomID)?.scene.scenes[0].emitMovement(socket, movement);
         } 
