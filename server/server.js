@@ -83,7 +83,7 @@ io.on('connection', function(socket) {
                 if (room.size == 1) {
                     games.delete(roomID);
                 } else {
-                    games.get(roomID).scene.scenes[0].emitDisconnect(socket);
+                    games.get(roomID).scene.scenes[0].events.emit('playerDisconnected', socket);
                 }
             }
         }
@@ -92,7 +92,7 @@ io.on('connection', function(socket) {
     socket.on('movement', function(movement) {
         const roomID = socket.roomID; 
         if (roomID) {
-            games.get(roomID)?.scene.scenes[0].emitMovement(socket, movement);
+            games.get(roomID)?.scene.scenes[0].events.emit('movement', socket, movement);
         } 
     })
 });

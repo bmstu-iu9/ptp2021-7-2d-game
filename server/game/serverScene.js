@@ -35,6 +35,33 @@ class ServerScene extends Phaser.Scene {
                 wizard
             });
         }
+
+        this.events.addListener('movement', (socket, movement) => {
+            const { left, right, up, down } = movement;
+            const speed = 160;
+            const jump = 400;
+    
+            const wizard = this.players.get(socket.id).wizard;
+            if (left) {
+                wizard.setVelocityX(-speed);
+            } else if (right) {
+                wizard.setVelocityX(speed);
+            } else {
+                wizard.setVelocityX(0);
+            }
+    
+            if (up) {
+                if (wizard.body.touching.down || wizard.body.onFloor()) {
+                    wizard.setVelocityY(-jump);
+                }
+            }
+        });
+
+        this.events.addListener('playerDisconnected', (socket, reason) => {
+            const player = this.players.get(socket.id);
+            player.wizard.destroy();
+            this.players.delete(socket.id);
+        });
     }
 
     update() {
@@ -47,32 +74,5 @@ class ServerScene extends Phaser.Scene {
         const snapshot = SI.snapshot.create(wizards_data);
 
         this.io.to(this.roomID).emit('snapshot', snapshot); 
-    }
-
-    emitMovement(socket, movement) {
-        const { left, right, up, down } = movement;
-        const speed = 160;
-        const jump = 400;
-
-        const wizard = this.players.get(socket.id).wizard;
-        if (left) {
-            wizard.setVelocityX(-speed);
-        } else if (right) {
-            wizard.setVelocityX(speed);
-        } else {
-            wizard.setVelocityX(0);
-        }
-
-        if (up) {
-            if (wizard.body.touching.down || wizard.body.onFloor()) {
-                wizard.setVelocityY(-jump);
-            }
-        }
-    }
-
-    emitDisconnect(socket, reason) {
-        const player = this.players.get(socket.id);
-        player.wizard.destroy();
-        this.players.delete(socket.id);
     }
 }
