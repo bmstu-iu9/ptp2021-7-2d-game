@@ -15,15 +15,19 @@ export class MainScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image('background', 'public/assets/background.png');
-        this.load.spritesheet('wizard', 'public/assets/wizard.png', {
-            frameWidth: 32,
-            frameHeight: 48
-        });
-    }
+      this.load.image('background', 'public/assets/textures/Background.png');
+      this.load.image('cloud1', 'public/assets/textures/Cloud1.png');
+      this.load.image('cloud2', 'public/assets/textures/Cloud2.png');
+      this.load.image('cloud3', 'public/assets/textures/Cloud3.png');
+      this.load.image('mountain', 'public/assets/textures/Mountain.png');
+      this.load.spritesheet('wizard', 'public/assets/textures/wizard.png', {
+          frameWidth: 32,
+          frameHeight: 48
+      });
+  }
 
     create() {
-      this.add.image(640, 360, 'background');
+      this.add.image(960, 540, 'background');
 
       this.anims.create({
           key: 'left',
@@ -47,9 +51,19 @@ export class MainScene extends Phaser.Scene {
 
       this.cursors = this.input.keyboard.createCursorKeys();
 
+      this.socket.on('createArena', (platforms) => {
+        for (const name in platforms) {
+          const platform = this.add.image(platforms[name].x, platforms[name].y, name);
+          platform.displayHeight = platforms[name].height;
+          platform.displayWidth = platforms[name].width;
+        }
+      });
+
       this.socket.on('snapshot', (snapshot) => {
         SI.snapshot.add(snapshot);
       });
+
+      this.socket.emit('clientInitialized');
     }
 
     update() {
@@ -61,7 +75,7 @@ export class MainScene extends Phaser.Scene {
 
       const active = new Set();
 
-      state.forEach((wizard_data) => {
+      /*state.forEach((wizard_data) => {
         const {id, x, y, velocity} = wizard_data;
 
         active.add(id);
@@ -83,16 +97,16 @@ export class MainScene extends Phaser.Scene {
             wizard.anims.play('turn');
           }
         } 
-      });
+      });*/
 
-      for (const id of this.wizards.keys()) {
+      /*for (const id of this.wizards.keys()) {
         if (!active.has(id)) {
           console.log('DELETE', id);
           const wizard = this.wizards.get(id);
           wizard.destroy();
           this.wizards.delete(id);
         }
-      }
+      }*/
 
       const movement = {
         left: this.cursors.left.isDown,

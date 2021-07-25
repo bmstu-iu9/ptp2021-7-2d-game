@@ -1,6 +1,7 @@
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 
 import { Wizard } from './components/wizard.js';
+import { arenaData, Arena } from './components/arena.js'
 
 const SI = new SnapshotInterpolation();
 
@@ -21,27 +22,32 @@ class ServerScene extends Phaser.Scene {
     }
 
     create() {
-        this.physics.world.setBounds(0, 0, 1280, 590);
+        this.arenaData = arenaData;
+        this.arena = new Arena(this, this.arenaData.server);
 
         const room = this.io.sockets.adapter.rooms.get(this.roomID); 
         for (const socketID of room) {
             const socket = this.io.sockets.sockets.get(socketID);
 
             const x = Math.random() * 1200 + 40;
-            const wizard = new Wizard(this, x, 200);
+            //const wizard = new Wizard(this, x, 200);
 
             this.players.set(socket.id, {
                 socket,
-                wizard
+                //wizard
             });
         }
+
+        this.events.addListener('clientInitialized', (socket) => {
+            socket.emit('createArena', this.arenaData.client);
+        });
 
         this.events.addListener('movement', (socket, movement) => {
             const { left, right, up, down } = movement;
             const speed = 160;
             const jump = 400;
     
-            const wizard = this.players.get(socket.id).wizard;
+            /*const wizard = this.players.get(socket.id).wizard;
             if (left) {
                 wizard.setVelocityX(-speed);
             } else if (right) {
@@ -54,18 +60,18 @@ class ServerScene extends Phaser.Scene {
                 if (wizard.body.touching.down || wizard.body.onFloor()) {
                     wizard.setVelocityY(-jump);
                 }
-            }
+            }*/
         });
 
         this.events.addListener('playerDisconnected', (socket, reason) => {
             const player = this.players.get(socket.id);
-            player.wizard.destroy();
+            //player.wizard.destroy();
             this.players.delete(socket.id);
         });
     }
 
     update() {
-        const wizards_data = [];
+        /*const wizards_data = [];
         this.players.forEach((player) => {
             const { socket, wizard } = player;
             wizards_data.push({ id: socket.id, x: wizard.x, y: wizard.y, velocity: wizard.body.velocity });
@@ -73,6 +79,6 @@ class ServerScene extends Phaser.Scene {
 
         const snapshot = SI.snapshot.create(wizards_data);
 
-        this.io.to(this.roomID).emit('snapshot', snapshot); 
+        this.io.to(this.roomID).emit('snapshot', snapshot);*/
     }
 }

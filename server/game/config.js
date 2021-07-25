@@ -10,8 +10,8 @@ export function makeConfig(io, roomID) {
     const ServerScene = makeServerScene(io, roomID); 
     const config = {
         type: Phaser.HEADLESS,
-        width: 1280,
-        height: 720,
+        width: 1920,
+        height: 1080,
         banner: false,
         audio: false,
         scene: [ServerScene],
@@ -19,9 +19,9 @@ export function makeConfig(io, roomID) {
             target: FPS
         },
         physics: {
-            default: 'arcade',
-            arcade: {
-                gravity: { y: 1500 }
+            default: 'matter',
+            matter: {
+                gravity: { y: 2 }
             }
         }
     };

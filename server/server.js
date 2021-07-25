@@ -94,5 +94,12 @@ io.on('connection', function(socket) {
         if (roomID) {
             games.get(roomID)?.scene.scenes[0].events.emit('movement', socket, movement);
         } 
-    })
+    });
+
+    socket.on('clientInitialized', function() {
+        const roomID = socket.roomID;
+        if (roomID) {
+            games.get(roomID)?.scene.scenes[0].events.emit('clientInitialized', socket);
+        }
+    });
 });
