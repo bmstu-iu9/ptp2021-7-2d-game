@@ -1,0 +1,15 @@
+{
+    "left": ["KeyA"],
+    "right": ["KeyD"],
+    "jump": ["KeyW", "Space"],
+    "boost": ["ShiftLeft"],
+    "down": ["KeyS"],
+    "elementFire": ["Digit1"],
+    "elementWater": ["Digit2"],
+    "elementLife": ["Digit3"],
+    "elementDeath": ["Digit4"],
+    "elementElectricity": ["KeyZ"],
+    "elementGround": ["KeyX"],
+    "elementCold": ["KeyC"],
+    "elementNull": ["KeyV"]
+}
