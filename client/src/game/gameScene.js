@@ -6,7 +6,7 @@ export class MainScene extends Phaser.Scene {
     cursors;
 
     constructor() {
-        super();
+        super({ key: 'game', active: true });
         this.wizards = new Map();
     }
 

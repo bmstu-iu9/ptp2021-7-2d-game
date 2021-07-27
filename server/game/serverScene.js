@@ -1,7 +1,8 @@
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 
 import { Wizard } from './components/wizard.js';
-import { arenaData, Arena } from './components/arena.js'
+import { arenaData, Arena } from './components/arena.js';
+import { changeElements } from './components/elements.js';
 
 const SI = new SnapshotInterpolation();
 
@@ -34,6 +35,7 @@ class ServerScene extends Phaser.Scene {
 
             this.players.set(socket.id, {
                 socket,
+                elements: ['elementNull', 'elementNull', 'elementNull', 'elementNull', 'elementNull']
                 //wizard
             });
         }
@@ -67,6 +69,12 @@ class ServerScene extends Phaser.Scene {
             const player = this.players.get(socket.id);
             //player.wizard.destroy();
             this.players.delete(socket.id);
+        });
+
+        this.events.addListener('addElement', (socket, element) => {
+            const elements = this.players.get(socket.id).elements;
+            changeElements(elements, element);
+            socket.emit('changeElements', elements);
         });
     }
 
