@@ -1,3 +1,7 @@
+import Matter from 'matter-js';
+
+import { GameObject } from './gameObject.js';
+
 export const arenaData = {
   server: {                                                                                                             
     'cloud1': {x: 435, y: 445, verts: [
@@ -45,12 +49,12 @@ export const arenaData = {
   }
 };
 
-export class Arena {
-  constructor(scene, platforms) {
-      for (const name in platforms) {
-          this[name] = scene.matter.add.fromVertices(platforms[name].x, platforms[name].y, platforms[name].verts, {
-            'isStatic': true
-          });
-      }
+export function makeArena(scene, platforms, objectGroup) {
+  for (const name in platforms) {
+    const platform = new GameObject(scene, name);
+    platform._addBody(Matter.Bodies.fromVertices(platforms[name].x, platforms[name].y, platforms[name].verts, {
+      'isStatic': true
+    }));
+    objectGroup.add(platform);
   }
 }

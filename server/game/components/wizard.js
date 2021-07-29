@@ -1,3 +1,5 @@
+import Matter from 'matter-js';
+
 import { GameObject } from './gameObject.js';
 import { changeElements } from './elements.js';
 
@@ -28,7 +30,7 @@ export class Wizard extends GameObject {
         const w = 32;
         const h = 48;
 
-        this.mainBody = this.Matter.Bodies.rectangle(0, 0, w * 0.6, h, { 
+        this.mainBody = Matter.Bodies.rectangle(0, 0, w * 0.6, h, { 
             density: 0.001,
             friction: 0.1,
             frictionStatic: 0.1,
@@ -38,13 +40,13 @@ export class Wizard extends GameObject {
         });
 
         this.sensors = {
-            bottom: this.Matter.Bodies.rectangle(0, h * 0.5, w * 0.25, 2, { 
+            bottom: Matter.Bodies.rectangle(0, h * 0.5, w * 0.25, 2, { 
                 isSensor: true 
             }),
-            left: this.Matter.Bodies.rectangle(-w * 0.35, 0, 2, h * 0.5, { 
+            left: Matter.Bodies.rectangle(-w * 0.35, 0, 2, h * 0.5, { 
                 isSensor: true 
             }),
-            right: this.Matter.Bodies.rectangle(w * 0.35, 0, 2, h * 0.5, { 
+            right: Matter.Bodies.rectangle(w * 0.35, 0, 2, h * 0.5, { 
                 isSensor: true 
             })
         };
@@ -52,15 +54,19 @@ export class Wizard extends GameObject {
 
         this._addBodies([this.mainBody, this.sensors.bottom, this.sensors.left, this.sensors.right]);
 
-        this.Matter.Body.setInertia(this.body, Infinity);
-        this.Matter.Body.setPosition(this.body, {x, y});
+        Matter.Body.setInertia(this.body, Infinity);
+        Matter.Body.setPosition(this.body, {x, y});
 
-        this.scene.events.on("update", this.update, this);
-        this.scene.matter.world.on("beforeupdate", this.#resetTouching, this);
+        Matter.Events.on(this.scene.engine, 'beforeUpdate', this.#beforeUpdate.bind(this));
     }
 
     updateElements(element) {
         changeElements(this.elements, element);
+    }
+
+    #beforeUpdate() {
+        this.update();
+        this.#resetTouching();
     }
 
     move(movement) {
@@ -71,25 +77,22 @@ export class Wizard extends GameObject {
 
         if (left) {
             if (!(isInAir && this.isTouching.left)) {
-                this.Matter.Body.setVelocity(this.body, { x: -5, y: this.body.velocity.y });
+                Matter.Body.setVelocity(this.body, { x: -5, y: this.body.velocity.y });
             }
         } else if (right) {
             if (!(isInAir && this.isTouching.right)) {
-                this.Matter.Body.setVelocity(this.body, { x: 5, y: this.body.velocity.y });
+                Matter.Body.setVelocity(this.body, { x: 5, y: this.body.velocity.y });
             }
         } else {
-            this.Matter.Body.setVelocity(this.body, { x: 0, y: this.body.velocity.y });
+            Matter.Body.setVelocity(this.body, { x: 0, y: this.body.velocity.y });
         }
 
         if (up && this.canJump && isOnGround) {
-            this.Matter.Body.setVelocity(this.body, { x: this.body.velocity.x, y: -this.maxVelocity.y });
+            Matter.Body.setVelocity(this.body, { x: this.body.velocity.x, y: -this.maxVelocity.y });
 
             this.canJump = false;
             this.isTouching.bottom = false;
-            this.jumpCooldownTimer = this.scene.time.addEvent({
-                delay: 250,
-                callback: () => (this.canJump = true)
-            });
+            this.jumpCooldownTimer = setTimeout(() => {this.canJump = true}, 150);
         }
     }
 
@@ -121,16 +124,16 @@ export class Wizard extends GameObject {
 
         const velocity = this.body.velocity;
         if (velocity.x > this.maxVelocity.x) {
-            this.Matter.Body.setVelocity(this.body, { x: this.maxVelocity.x, y: this.body.velocity.y });
+            Matter.Body.setVelocity(this.body, { x: this.maxVelocity.x, y: this.body.velocity.y });
         } else if (velocity.x < -this.maxVelocity.x) {
-            this.Matter.Body.setVelocity(this.body, { x: -this.maxVelocity.x, y: this.body.velocity.y });
+            Matter.Body.setVelocity(this.body, { x: -this.maxVelocity.x, y: this.body.velocity.y });
         }
     }
 
     destroy() {
         super.destroy();
-        if (this.jumpCooldownTimer) this.jumpCooldownTimer.destroy();
-        this.scene.events.off("update", this.update, this);
+        if (this.jumpCooldownTimer) clearTimeout(this.jumpCooldownTimer);
+        Matter.Events.off(this.scene.engine, 'beforeUpdate', this.#beforeUpdate);
     }
 
     #setSensorLabel() {
@@ -146,7 +149,7 @@ export class Wizard extends GameObject {
     }
 
     #translateBody(dx, dy) {
-        this.Matter.Body.setPosition(this.body, {
+        Matter.Body.setPosition(this.body, {
             x: this.body.position.x + dx,
             y: this.body.position.y + dy
         });

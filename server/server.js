@@ -2,7 +2,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import path from 'path';
-import { PhaserGame } from './game/game.js';
+import { MatterGame } from './game/game.js';
 
 const app = express(); 
 const httpServer = createServer(app);
@@ -56,7 +56,8 @@ io.on('connection', function(socket) {
             if (room.size == maxSize) { 
                 io.to(roomID).emit('startGame');
                 room.gameStarted = true;
-                games.set(roomID, new PhaserGame(io, roomID));
+                console.log(process.memoryUsage()); //утечка памяти наблюдается
+                games.set(roomID, new MatterGame(io, roomID));
             }
         }
     });
@@ -81,9 +82,10 @@ io.on('connection', function(socket) {
                 io.to(roomID).emit('changePlayerCounterInRoom', room.size-1, room.maxSize);
             } else {
                 if (room.size == 1) {
+                    games.get(roomID).destroy();
                     games.delete(roomID);
                 } else {
-                    games.get(roomID).scene.scenes[0].events.emit('playerDisconnected', socket);
+                    games.get(roomID).scenes[0].playerDisconnected(socket);
                 }
             }
         }
@@ -92,19 +94,19 @@ io.on('connection', function(socket) {
     socket.on('movement', function(movement) {
         const roomID = socket.roomID; 
         if (roomID) {
-            games.get(roomID)?.scene.scenes[0].events.emit('movement', socket, movement);
+            games.get(roomID)?.scenes[0].movement(socket, movement);
         } 
     });
 
     socket.on('clientInitialized', function() {
         const roomID = socket.roomID;
         if (roomID) {
-            games.get(roomID)?.scene.scenes[0].events.emit('clientInitialized', socket);
+            games.get(roomID)?.scenes[0].clientInitialized(socket);
         }
     });
 
     socket.on('addElement', function(element) {
         const roomID = socket.roomID;
-        games.get(roomID)?.scene.scenes[0].events.emit('addElement', socket, element);
+        games.get(roomID)?.scenes[0].addElement(socket, element);
     });
 });

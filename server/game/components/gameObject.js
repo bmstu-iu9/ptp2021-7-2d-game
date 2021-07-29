@@ -1,6 +1,6 @@
-export class GameObject {
-    Matter = Phaser.Physics.Matter.Matter; 
+import Matter from "matter-js";
 
+export class GameObject {
     body;
     destroyed = false;
 
@@ -11,18 +11,18 @@ export class GameObject {
 
     _addBody(body) {
         this.body = body;
-        this.scene.matter.world.add(this.body);
+        Matter.Composite.add(this.scene.engine.world, this.body);
     }
 
     _addBodies(bodies) {
-        this.body = this.Matter.Body.create({
+        this.body = Matter.Body.create({
             parts: bodies.map(body => body)
         });
-        this.scene.matter.world.add(this.body);
+        Matter.Composite.add(this.scene.engine.world, this.body);
     }
 
     destroy() {
         this.destroyed = true;
-        this.scene.matter.world.remove(this.body);
+        Matter.Composite.remove(this.scene.engine.world, this.body);
     }
 }
