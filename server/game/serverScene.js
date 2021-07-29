@@ -1,8 +1,9 @@
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 
+import { GameObjectGroup } from './components/gameObjectGroup.js';
 import { Wizard } from './components/wizard.js';
+import { collisionFilter } from './components/collisions.js';
 import { arenaData, Arena } from './components/arena.js';
-import { changeElements } from './components/elements.js';
 
 const SI = new SnapshotInterpolation();
 
@@ -23,6 +24,10 @@ class ServerScene extends Phaser.Scene {
     }
 
     create() {
+        this.matter.world.setBounds(0, 0, 1920, 1080);
+
+        this.objectGroup = new GameObjectGroup();
+
         this.arenaData = arenaData;
         this.arena = new Arena(this, this.arenaData.server);
 
@@ -30,13 +35,16 @@ class ServerScene extends Phaser.Scene {
         for (const socketID of room) {
             const socket = this.io.sockets.sockets.get(socketID);
 
-            const x = Math.random() * 1200 + 40;
-            //const wizard = new Wizard(this, x, 200);
+            //const x = Math.random() * 1920 + 40;
+            const x = 1500;
+            const wizard = new Wizard(this, x, 10, 
+                                      ['elementNull', 'elementNull', 'elementNull', 'elementNull', 'elementNull'], 
+                                      socket.id);
+            this.objectGroup.add(wizard);
 
             this.players.set(socket.id, {
                 socket,
-                elements: ['elementNull', 'elementNull', 'elementNull', 'elementNull', 'elementNull']
-                //wizard
+                wizard
             });
         }
 
@@ -45,48 +53,39 @@ class ServerScene extends Phaser.Scene {
         });
 
         this.events.addListener('movement', (socket, movement) => {
-            const { left, right, up, down } = movement;
-            const speed = 160;
-            const jump = 400;
-    
-            /*const wizard = this.players.get(socket.id).wizard;
-            if (left) {
-                wizard.setVelocityX(-speed);
-            } else if (right) {
-                wizard.setVelocityX(speed);
-            } else {
-                wizard.setVelocityX(0);
-            }
-    
-            if (up) {
-                if (wizard.body.touching.down || wizard.body.onFloor()) {
-                    wizard.setVelocityY(-jump);
-                }
-            }*/
+            const wizard = this.players.get(socket.id).wizard;
+            wizard.move(movement);
         });
 
         this.events.addListener('playerDisconnected', (socket, reason) => {
             const player = this.players.get(socket.id);
-            //player.wizard.destroy();
+            this.objectGroup.remove(player.wizard);
+            player.wizard.destroy();
             this.players.delete(socket.id);
         });
 
         this.events.addListener('addElement', (socket, element) => {
-            const elements = this.players.get(socket.id).elements;
-            changeElements(elements, element);
-            socket.emit('changeElements', elements);
+            const wizard = this.players.get(socket.id).wizard;
+            wizard.updateElements(element);
+            socket.emit('changeElements', wizard.elements);
         });
+
+        const collisionEvent = collisionFilter(this.objectGroup);
+
+        this.matter.world.on('collisionstart', collisionEvent);
+        this.matter.world.on('collisionactive', collisionEvent);
     }
 
     update() {
-        /*const wizards_data = [];
+        const wizardsData = [];
         this.players.forEach((player) => {
             const { socket, wizard } = player;
-            wizards_data.push({ id: socket.id, x: wizard.x, y: wizard.y, velocity: wizard.body.velocity });
+            wizardsData.push({ id: socket.id, x: wizard.body.position.x, y: wizard.body.position.y, 
+                               velocity: wizard.body.velocity });
         });
 
-        const snapshot = SI.snapshot.create(wizards_data);
+        const snapshot = SI.snapshot.create(wizardsData);
 
-        this.io.to(this.roomID).emit('snapshot', snapshot);*/
+        this.io.to(this.roomID).emit('snapshot', snapshot); 
     }
 }

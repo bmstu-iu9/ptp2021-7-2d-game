@@ -21,7 +21,7 @@ export function makeConfig(io, roomID) {
         physics: {
             default: 'matter',
             matter: {
-                gravity: { y: 2 }
+                gravity: { y: 3 }
             }
         }
     };
