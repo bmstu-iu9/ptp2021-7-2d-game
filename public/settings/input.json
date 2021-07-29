@@ -4,12 +4,14 @@
     "jump": "W",
     "boost": "SHIFT",
     "down": "S",
-    "elementFire": "ONE",
-    "elementWater": "TWO",
-    "elementLife": "THREE",
-    "elementDeath": "FOUR",
-    "elementElectricity": "Z",
-    "elementGround": "X",
-    "elementCold": "C",
-    "elementNull": "V"
+    "elements": {
+        "elementFire": "ONE",
+        "elementWater": "TWO",
+        "elementLife": "THREE",
+        "elementDeath": "FOUR",
+        "elementElectricity": "Z",
+        "elementGround": "X",
+        "elementCold": "C",
+        "elementNull": "V"
+    }
 }

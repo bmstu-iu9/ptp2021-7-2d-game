@@ -30,21 +30,16 @@ export class InterfaceScene extends Phaser.Scene {
         this.elementsInterface = new ElementsInterface(this, 5, 960, 1040, 360, 80, 60, 60, 10, 'elementNull', 'interfaceBackground');
 
         const data = this.cache.json.get('inputdata');
-        this.addKeyboardEvent('elementFire', data['elementFire'], 'down');
-        this.addKeyboardEvent('elementWater', data['elementWater'], 'down');
-        this.addKeyboardEvent('elementLife', data['elementLife'], 'down');
-        this.addKeyboardEvent('elementDeath', data['elementDeath'], 'down');
-        this.addKeyboardEvent('elementElectricity', data['elementElectricity'], 'down');
-        this.addKeyboardEvent('elementGround', data['elementGround'], 'down');
-        this.addKeyboardEvent('elementCold', data['elementCold'], 'down');
-        this.addKeyboardEvent('elementNull', data['elementNull'], 'down');
+        for (const element in data['elements']) {
+            this.addKeyboardEvent(element, data['elements'][element], 'down', 'addElement');
+        }
     }
 
-    addKeyboardEvent(name, keyCode, event) {
+    addKeyboardEvent(name, keyCode, event, epistle) {
         const key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes[keyCode]);
         key.name = name;
         key.on(event, () => {
-            this.socket.emit('addElement', name);
+            this.socket.emit(epistle, name);
         });
     }
 }
