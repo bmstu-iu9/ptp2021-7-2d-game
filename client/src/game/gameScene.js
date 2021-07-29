@@ -23,7 +23,7 @@ export class GameScene extends Phaser.Scene {
         this.load.image('cloud1', 'public/assets/textures/Cloud1.png');
         this.load.image('cloud2', 'public/assets/textures/Cloud2.png');
         this.load.image('cloud3', 'public/assets/textures/Cloud3.png');
-        this.load.image('mountain', 'public/assets/textures/Mountain.png');
+        this.load.image('ground', 'public/assets/textures/Ground.png');
         this.load.spritesheet('wizard', 'public/assets/textures/wizard.png', {
             frameWidth: 32,
             frameHeight: 48
