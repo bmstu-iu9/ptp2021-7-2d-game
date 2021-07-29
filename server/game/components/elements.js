@@ -35,14 +35,15 @@ function collapseElement(elements, firstElementNull, firstElement) {
 // cold + vapor = water                                 +
 
 export function changeElements(elements, element) {
-    const firstElementNull = elements.indexOf('elementNull');
-    const lastElementElectricity = elements.lastIndexOf('elementElectricity');
-    const lastElementFire = elements.lastIndexOf('elementFire');
-    const lastElementCold = elements.lastIndexOf('elementCold');
-    const lastElementWater = elements.lastIndexOf('elementWater');
-    const lastElementDeath = elements.lastIndexOf('elementDeath');
-    const lastElementLife = elements.lastIndexOf('elementLife');
-    const lastElementGround = elements.lastIndexOf('elementGround');
+    let firstElementNull = elements.indexOf('elementNull');
+    let lastElementElectricity = elements.lastIndexOf('elementElectricity');
+    let lastElementFire = elements.lastIndexOf('elementFire');
+    let lastElementCold = elements.lastIndexOf('elementCold');
+    let lastElementWater = elements.lastIndexOf('elementWater');
+    let lastElementDeath = elements.lastIndexOf('elementDeath');
+    let lastElementLife = elements.lastIndexOf('elementLife');
+    let lastElementGround = elements.lastIndexOf('elementGround');
+    let elementToCollapse;
     switch(element) {
         case 'elementNull':
         if (firstElementNull == -1) {
@@ -59,6 +60,15 @@ export function changeElements(elements, element) {
                 elements[lastElementWater] = 'elementVapor';
             } else if (lastElementIce != -1) {
                 elements[lastElementIce] = 'elementWater';
+                if (lastElementElectricity != -1) {
+                    collapseElement(elements, firstElementNull, lastElementIce);
+                    firstElementNull = elements.indexOf('elementNull');
+                    elementToCollapse = elements.indexOf('elementWater');
+                    collapseElement(elements, firstElementNull, elementToCollapse);
+                } else if (lastElementDeath != -1) {
+                    elements[Math.min(lastElementIce, lastElementDeath)] = 'elementPoison';
+                    collapseElement(elements, firstElementNull, Math.max(lastElementIce, lastElementDeath));
+                }
             } else {
                 addElement(firstElementNull, elements, 'elementFire');
             }
@@ -82,6 +92,18 @@ export function changeElements(elements, element) {
                 collapseElement(elements, firstElementNull, lastElementDeath);
             } else if (lastElementPoison != -1) {
                 elements[lastElementPoison] = 'elementWater';
+                if (lastElementElectricity != -1) {
+                    collapseElement(elements, firstElementNull, lastElementPoison);
+                    firstElementNull = elements.indexOf('elementNull');
+                    elementToCollapse = elements.indexOf('elementWater');
+                    collapseElement(elements, firstElementNull, elementToCollapse);
+                } else if (lastElementFire != -1) {
+                    elements[Math.min(lastElementPoison, lastElementFire)] = 'elementVapor';
+                    collapseElement(elements, firstElementNull, Math.max(lastElementPoison, lastElementFire));
+                } else if (lastElementCold != -1) {
+                    elements[Math.min(lastElementPoison, lastElementCold)] = 'elementIce';
+                    collapseElement(elements, firstElementNull, Math.max(lastElementPoison, lastElementCold));
+                }
             } else {
                 addElement(firstElementNull, elements, 'elementLife');
             }
@@ -96,9 +118,10 @@ export function changeElements(elements, element) {
             }
         break;
         case 'elementElectricity':
-            let lastElementToCollapse = Math.max(lastElementGround, lastElementWater);
-            if (lastElementToCollapse != -1) {
-                collapseElement(elements, firstElementNull, lastElementToCollapse);
+            if (lastElementGround != -1 & lastElementGround > lastElementWater) {
+                collapseElement(elements, firstElementNull, lastElementGround);
+            } else if (lastElementWater != -1) {
+                collapseElement(elements, firstElementNull, lastElementWater);
             } else {
                 addElement(firstElementNull, elements, 'elementElectricity');
             }
@@ -118,6 +141,15 @@ export function changeElements(elements, element) {
                 elements[lastElementWater] = 'elementIce';
             } else if (lastElementVapor != -1) {
                 elements[lastElementVapor] = 'elementWater';
+                if (lastElementElectricity != -1) {
+                    collapseElement(elements, firstElementNull, lastElementVapor);
+                    firstElementNull = elements.indexOf('elementNull');
+                    elementToCollapse = elements.indexOf('elementWater');
+                    collapseElement(elements, firstElementNull, elementToCollapse);
+                } else if (lastElementDeath != -1) {
+                    elements[Math.min(lastElementVapor, lastElementDeath)] = 'elementPoison';
+                    collapseElement(elements, firstElementNull, Math.max(lastElementVapor, lastElementDeath));
+                }
             } else {
                 addElement(firstElementNull, elements, 'elementCold');
             }
