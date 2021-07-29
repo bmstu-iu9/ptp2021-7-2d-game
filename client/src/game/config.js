@@ -1,5 +1,5 @@
 import "phaser";
-import { MainScene } from "./gameScene.js";
+import { GameScene } from "./gameScene.js";
 import { InterfaceScene } from "./interfaceScene.js";
 
 export const config = {
@@ -10,5 +10,5 @@ export const config = {
         width: 1920,
         height: 1080
     },
-    scene: [MainScene, InterfaceScene]
+    scene: [GameScene, InterfaceScene]
 };
