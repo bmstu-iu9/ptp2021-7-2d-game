@@ -8,8 +8,6 @@ class ElementPic extends Phaser.GameObjects.Image {
 }
 
 export class ElementsInterface extends Phaser.GameObjects.Container {
-    codes = [];
-
     constructor(scene, maxElementCount, x, y, width, height, elementPicWidth, elementPicHeight, pxBetweenElements, elementNull, interfaceBackground) {
         super(scene, x, y);
 
@@ -42,17 +40,6 @@ export class ElementsInterface extends Phaser.GameObjects.Container {
     changeElements(elements) {
         for (var i = 0; i < elements.length; i++) {
             this.list[i+1].setTexture(elements[i]);
-        }
-    }
-
-    addKeyboardEvent(name, keys, event) {
-        for (const key of keys) {
-            const thisKey = this.scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes[key]);
-            thisKey.name = name;
-            thisKey.on(event, () => {
-                this.scene.socket.emit('addElement', name);
-            });
-            this.codes.push(thisKey);
         }
     }
 }

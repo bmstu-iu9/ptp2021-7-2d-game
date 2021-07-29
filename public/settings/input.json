@@ -1,15 +1,15 @@
 {
-    "left": ["A"],
-    "right": ["D"],
-    "jump": ["W", "SPACE"],
-    "boost": ["SHIFT"],
-    "down": ["S"],
-    "elementFire": ["ONE"],
-    "elementWater": ["TWO"],
-    "elementLife": ["THREE"],
-    "elementDeath": ["FOUR"],
-    "elementElectricity": ["Z"],
-    "elementGround": ["X"],
-    "elementCold": ["C"],
-    "elementNull": ["V"]
+    "left": "A",
+    "right": "D",
+    "jump": "W",
+    "boost": "SHIFT",
+    "down": "S",
+    "elementFire": "ONE",
+    "elementWater": "TWO",
+    "elementLife": "THREE",
+    "elementDeath": "FOUR",
+    "elementElectricity": "Z",
+    "elementGround": "X",
+    "elementCold": "C",
+    "elementNull": "V"
 }

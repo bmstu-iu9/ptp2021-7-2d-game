@@ -22,21 +22,29 @@ export class InterfaceScene extends Phaser.Scene {
         this.load.image('elementIce', 'public/assets/textures/elementIce.png');
         this.load.image('elementVapor', 'public/assets/textures/elementVapor.png');
         this.load.image('elementPoison', 'public/assets/textures/elementPoison.png');
+
+        this.load.json('inputdata', 'public/settings/input.json');
     }
 
     create() {
         this.elementsInterface = new ElementsInterface(this, 5, 960, 1040, 360, 80, 60, 60, 10, 'elementNull', 'interfaceBackground');
-        fetch("public/settings/input.json").then(response => { 
-            return response.json(); 
-        }).then(data => {
-            this.elementsInterface.addKeyboardEvent('elementFire', data['elementFire'], 'down');
-            this.elementsInterface.addKeyboardEvent('elementWater', data['elementWater'], 'down');
-            this.elementsInterface.addKeyboardEvent('elementLife', data['elementLife'], 'down');
-            this.elementsInterface.addKeyboardEvent('elementDeath', data['elementDeath'], 'down');
-            this.elementsInterface.addKeyboardEvent('elementElectricity', data['elementElectricity'], 'down');
-            this.elementsInterface.addKeyboardEvent('elementGround', data['elementGround'], 'down');
-            this.elementsInterface.addKeyboardEvent('elementCold', data['elementCold'], 'down');
-            this.elementsInterface.addKeyboardEvent('elementNull', data['elementNull'], 'down');
+
+        const data = this.cache.json.get('inputdata');
+        this.addKeyboardEvent('elementFire', data['elementFire'], 'down');
+        this.addKeyboardEvent('elementWater', data['elementWater'], 'down');
+        this.addKeyboardEvent('elementLife', data['elementLife'], 'down');
+        this.addKeyboardEvent('elementDeath', data['elementDeath'], 'down');
+        this.addKeyboardEvent('elementElectricity', data['elementElectricity'], 'down');
+        this.addKeyboardEvent('elementGround', data['elementGround'], 'down');
+        this.addKeyboardEvent('elementCold', data['elementCold'], 'down');
+        this.addKeyboardEvent('elementNull', data['elementNull'], 'down');
+    }
+
+    addKeyboardEvent(name, keyCode, event) {
+        const key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes[keyCode]);
+        key.name = name;
+        key.on(event, () => {
+            this.socket.emit('addElement', name);
         });
     }
 }
