@@ -1,78 +1,91 @@
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 
+import { GameObjectGroup } from './components/gameObjectGroup.js';
 import { Wizard } from './components/wizard.js';
+import { collisionFilter } from './components/collisions.js';
+import { arenaData, Arena } from './components/arena.js';
 
 const SI = new SnapshotInterpolation();
 
 let io, roomID;  
 export function makeServerScene(_io, _roomID) {
-  io = _io;
-  roomID = _roomID;
-  return ServerScene;
+    io = _io;
+    roomID = _roomID;
+    return ServerScene;
 } 
 
 class ServerScene extends Phaser.Scene {
-  constructor() {
-    super();
-    this.players = new Map();
+    constructor() {
+        super();
+        this.players = new Map();
 
-    this.io = io; 
-    this.roomID = roomID;
-  }
-
-  create() {
-    this.physics.world.setBounds(0, 0, 1280, 590);
-
-    const room = this.io.sockets.adapter.rooms.get(this.roomID); 
-    for (const socketID of room) {
-      let socket = this.io.sockets.sockets.get(socketID);
-
-      const x = Math.random() * 1200 + 40;
-      const wizard = new Wizard(this, x, 200);
-
-      this.players.set(socket.id, {
-        socket,
-        wizard
-      });
-    }
-  }
-
-  update() {
-    const wizards_data = [];
-    this.players.forEach((player) => {
-      const { socket, wizard } = player;
-      wizards_data.push({ id: socket.id, x: wizard.x, y: wizard.y, velocity: wizard.body.velocity });
-    });
-
-    const snapshot = SI.snapshot.create(wizards_data);
-
-    this.io.to(this.roomID).emit('snapshot', snapshot); 
-  }
-
-  emitMovement(socket, movement) {
-    const { left, right, up, down } = movement;
-    const speed = 160;
-    const jump = 400;
-
-    let wizard = this.players.get(socket.id).wizard;
-    if (left) {
-      wizard.setVelocityX(-speed);
-    } else if (right) {
-      wizard.setVelocityX(speed);
-    } else {
-      wizard.setVelocityX(0);
+        this.io = io; 
+        this.roomID = roomID;
     }
 
-    if (up) {
-      if (wizard.body.touching.down || wizard.body.onFloor()) {
-        wizard.setVelocityY(-jump);
-      }
-    }
-  }
+    create() {
+        this.matter.world.setBounds(0, 0, 1920, 1080);
 
-  emitDisconnect(socket, reason) {
-    const player = this.players.get(socket.id);
-    player.wizard.destroy();
-    this.players.delete(socket.id);
-  }
+        this.objectGroup = new GameObjectGroup();
+
+        this.arenaData = arenaData;
+        this.arena = new Arena(this, this.arenaData.server);
+
+        const room = this.io.sockets.adapter.rooms.get(this.roomID); 
+        for (const socketID of room) {
+            const socket = this.io.sockets.sockets.get(socketID);
+
+            //const x = Math.random() * 1920 + 40;
+            const x = 1500;
+            const wizard = new Wizard(this, x, 10, 
+                                      ['elementNull', 'elementNull', 'elementNull', 'elementNull', 'elementNull'], 
+                                      socket.id);
+            this.objectGroup.add(wizard);
+
+            this.players.set(socket.id, {
+                socket,
+                wizard
+            });
+        }
+
+        this.events.addListener('clientInitialized', (socket) => {
+            socket.emit('createArena', this.arenaData.client);
+        });
+
+        this.events.addListener('movement', (socket, movement) => {
+            const wizard = this.players.get(socket.id).wizard;
+            wizard.move(movement);
+        });
+
+        this.events.addListener('playerDisconnected', (socket, reason) => {
+            const player = this.players.get(socket.id);
+            this.objectGroup.remove(player.wizard);
+            player.wizard.destroy();
+            this.players.delete(socket.id);
+        });
+
+        this.events.addListener('addElement', (socket, element) => {
+            const wizard = this.players.get(socket.id).wizard;
+            wizard.updateElements(element);
+            socket.emit('changeElements', wizard.elements);
+        });
+
+        const collisionEvent = collisionFilter(this.objectGroup);
+
+        this.matter.world.on('collisionstart', collisionEvent);
+        this.matter.world.on('collisionactive', collisionEvent);
+    }
+
+    update() {
+        const wizardsData = [];
+        this.players.forEach((player) => {
+            const { socket, wizard } = player;
+            wizardsData.push({ id: socket.id, x: wizard.body.position.x, y: wizard.body.position.y, 
+                               velocity: wizard.body.velocity });
+        });
+
+        const snapshot = SI.snapshot.create(wizardsData);
+
+        this.io.to(this.roomID).emit('snapshot', snapshot); 
+    }
 }

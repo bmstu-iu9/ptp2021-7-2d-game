@@ -1,0 +1,17 @@
+{
+    "left": "A",
+    "right": "D",
+    "jump": "W",
+    "boost": "SHIFT",
+    "down": "S",
+    "elements": {
+        "elementFire": "ONE",
+        "elementWater": "TWO",
+        "elementLife": "THREE",
+        "elementDeath": "FOUR",
+        "elementElectricity": "Z",
+        "elementGround": "X",
+        "elementCold": "C",
+        "elementNull": "V"
+    }
+}

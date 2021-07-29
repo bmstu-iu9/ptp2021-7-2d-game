@@ -7,23 +7,23 @@ const FPS = 60;
 global.phaserOnNodeFPS = FPS;
 
 export function makeConfig(io, roomID) {
-  const ServerScene = makeServerScene(io, roomID); 
-  const config = {
-    type: Phaser.HEADLESS,
-    width: 1280,
-    height: 720,
-    banner: false,
-    audio: false,
-    scene: [ServerScene],
-    fps: {
-      target: FPS
-    },
-    physics: {
-      default: 'arcade',
-      arcade: {
-        gravity: { y: 1500 }
-      }
-    }
-  };
-  return config;
+    const ServerScene = makeServerScene(io, roomID); 
+    const config = {
+        type: Phaser.HEADLESS,
+        width: 1920,
+        height: 1080,
+        banner: false,
+        audio: false,
+        scene: [ServerScene],
+        fps: {
+            target: FPS
+        },
+        physics: {
+            default: 'matter',
+            matter: {
+                gravity: { y: 3 }
+            }
+        }
+    };
+    return config;
 }

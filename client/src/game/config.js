@@ -1,13 +1,14 @@
 import "phaser";
-import { MainScene } from "./gameScene.js";
+import { GameScene } from "./gameScene.js";
+import { InterfaceScene } from "./interfaceScene.js";
 
 export const config = {
     parent: document.getElementById('game'),
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: 1280,
-        height: 720
+        width: 1920,
+        height: 1080
     },
-    scene: [MainScene]
+    scene: [GameScene, InterfaceScene]
 };
