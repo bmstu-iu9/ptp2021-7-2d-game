@@ -98,6 +98,9 @@ export class ServerScene {
     destroy() {
         stopGameLoop();
         Matter.Engine.clear(this.engine);
+        for (let object in this.objectGroup) {
+            Matter.Events.off(object);
+        }
         setTimeout(() => {
         for (let x in this) {
             this[x] = null;

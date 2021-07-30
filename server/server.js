@@ -56,7 +56,7 @@ io.on('connection', function(socket) {
             if (room.size == maxSize) { 
                 io.to(roomID).emit('startGame');
                 room.gameStarted = true;
-                console.log(process.memoryUsage()); //утечка памяти наблюдается
+                //console.log(process.memoryUsage()); //утечка памяти наблюдается
                 games.set(roomID, new MatterGame(io, roomID));
             }
         }
@@ -82,10 +82,10 @@ io.on('connection', function(socket) {
                 io.to(roomID).emit('changePlayerCounterInRoom', room.size-1, room.maxSize);
             } else {
                 if (room.size == 1) {
-                    games.get(roomID).destroy();
+                    games.get(roomID)?.destroy();
                     games.delete(roomID);
                 } else {
-                    games.get(roomID).scenes[0].playerDisconnected(socket);
+                    games.get(roomID)?.scenes[0].playerDisconnected(socket);
                 }
             }
         }
