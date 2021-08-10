@@ -108,7 +108,8 @@ export class Wizard extends GameObject {
             return;
         }
         
-        const sepPadding = otherBody.isStatic ? 0.1 : 0.2;
+        //const sepPadding = otherBody.isStatic ? 0.1 : 0.2;
+        const sepPadding = 1;
         const sep = pair.separation - sepPadding
 
         if (sensorBody === this.sensors.left) {
