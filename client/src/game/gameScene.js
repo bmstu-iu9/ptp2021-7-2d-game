@@ -92,6 +92,9 @@ export class GameScene extends Phaser.Scene {
 
             if (!exists) {
                 const wizard = this.add.sprite(x, y, 'wizard');
+                if (id === this.socket.id) {
+                    wizard.depth = 1;
+                }
                 this.wizards.set(id, wizard);
             } else {
                 const wizard = this.wizards.get(id);
