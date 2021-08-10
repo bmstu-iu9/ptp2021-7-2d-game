@@ -1,10 +1,21 @@
 import { makeConfig } from "./config.js";
 
-export class PhaserGame extends Phaser.Game {
-    constructor(io, roomID) {
-        const config = makeConfig(io, roomID);
-        super(config); 
+export class MatterGame {
+    constructor(io, room) {
+        const config = makeConfig(io, room);
+        for (const parameter in config) {
+            this[parameter] = config[parameter];
+        }
         this.io = io;
-        this.roomID = roomID;
+        this.room = this.room;
+    }
+
+    destroy() {
+        for (const scene in this.scenes) {
+            this.scenes[scene].destroy();
+        }
+        for (let x in this) {
+            this[x] = null;
+        }
     }
 }

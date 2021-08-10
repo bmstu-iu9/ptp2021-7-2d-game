@@ -1,8 +1,8 @@
 export class PageNavigation {
-    fromPageID;
+    fromPageId;
 
-    constructor(client) {
-        this.client = client;
+    constructor(channel) {
+        this.channel = channel;
     }
 
     initPages() {
@@ -17,22 +17,22 @@ export class PageNavigation {
         document.getElementById('game').addEventListener('contextmenu', e => e.preventDefault());
     }
 
-    static switchTo(fromID, toID) { 
-        document.getElementById(fromID).style.display = 'none';
-        document.getElementById(toID).style.display = 'flex';
+    static switchTo(fromId, toId) { 
+        document.getElementById(fromId).style.display = 'none';
+        document.getElementById(toId).style.display = 'flex';
     }
 
     #createRoom() { 
         const playerNum = parseInt(document.getElementById('playerNum').value); 
-        this.client.socket.emit('createRoom', playerNum);
+        this.channel.emit('createRoom', playerNum);
     }
 
-    #joinRoom(roomID) {
-        this.client.socket.emit('joinRoom', roomID);
+    #joinRoom(roomId) {
+        this.channel.emit('joinRoom', roomId);
     }
 
 	#exitRoom() {
-        PageNavigation.switchTo('gamingPage', this.fromPageID);
-        this.client.socket.emit('leaveRoom');		
+        PageNavigation.switchTo('gamingPage', this.fromPageId);
+        this.channel.emit('leaveRoom');		
 	}
 }

@@ -1,29 +1,13 @@
-import '@geckos.io/phaser-on-nodejs'; 
+import { ServerScene } from './serverScene.js';
 
-import 'phaser';
-import { makeServerScene } from './serverScene.js';
-
-const FPS = 60;
-global.phaserOnNodeFPS = FPS;
-
-export function makeConfig(io, roomID) {
-    const ServerScene = makeServerScene(io, roomID); 
+export function makeConfig(io, room) {
+    const gravity = {x: 0, y: 1000000};
+    const fps = 60;
     const config = {
-        type: Phaser.HEADLESS,
         width: 1920,
         height: 1080,
-        banner: false,
-        audio: false,
-        scene: [ServerScene],
-        fps: {
-            target: FPS
-        },
-        physics: {
-            default: 'matter',
-            matter: {
-                gravity: { y: 3 }
-            }
-        }
+        scenes: [new ServerScene(io, room, gravity, fps)],
+        fps: 60
     };
     return config;
 }

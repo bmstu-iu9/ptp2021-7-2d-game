@@ -15,7 +15,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     init() {
-        this.socket = this.game.socket;  
+        this.channel = this.game.channel;  
     }
 
     preload() {
@@ -60,7 +60,7 @@ export class GameScene extends Phaser.Scene {
         this.keys.right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes[data['right']]);
         this.keys.up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes[data['jump']]);
 
-        this.socket.on('createArena', (platforms) => {
+        this.channel.on('createArena', (platforms) => {
             for (const name in platforms) {
                 const platform = this.add.image(platforms[name].x, platforms[name].y, name);
                 platform.displayHeight = platforms[name].height;
@@ -68,11 +68,11 @@ export class GameScene extends Phaser.Scene {
             }
         });
 
-        this.socket.on('snapshot', (snapshot) => {
+        this.channel.on('snapshot', (snapshot) => {
             SI.snapshot.add(snapshot);
         });
 
-        this.socket.emit('clientInitialized');
+        this.channel.emit('clientInitialized');
     }
 
     update() {
@@ -92,6 +92,9 @@ export class GameScene extends Phaser.Scene {
 
             if (!exists) {
                 const wizard = this.add.sprite(x, y, 'wizard');
+                if (id === this.channel.id) {
+                    wizard.depth = 1;
+                }
                 this.wizards.set(id, wizard);
             } else {
                 const wizard = this.wizards.get(id);
@@ -123,6 +126,6 @@ export class GameScene extends Phaser.Scene {
             up: this.keys.up.isDown
         };
 
-        this.socket.emit('movement', movement);
+        this.channel.emit('movement', movement);
     }
 }

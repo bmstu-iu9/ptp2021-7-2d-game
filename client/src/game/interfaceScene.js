@@ -6,7 +6,7 @@ export class InterfaceScene extends Phaser.Scene {
     }
 
     init() {
-        this.socket = this.game.socket;  
+        this.channel = this.game.channel;  
     }
 
     preload() {
@@ -39,7 +39,7 @@ export class InterfaceScene extends Phaser.Scene {
         const key = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes[keyCode]);
         key.name = name;
         key.on(event, () => {
-            this.socket.emit(epistle, name);
+            this.channel.emit(epistle, name);
         });
     }
 }

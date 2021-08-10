@@ -1,12 +1,13 @@
 import express from 'express';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
+import geckos from '@geckos.io/server';
 import path from 'path';
-import { PhaserGame } from './game/game.js';
+import { MatterGame } from './game/game.js';
+import { Room } from './game/components/room.js';
 
 const app = express(); 
 const httpServer = createServer(app);
-const io = new Server(httpServer);
+const io = geckos();
 
 const port = 27016;
 const dirname = path.resolve();
@@ -17,94 +18,95 @@ app.get('/', function(req, res) {
 app.use('/dist', express.static(path.join(dirname, '/client/dist')));
 app.use('/public', express.static(path.join(dirname, '/public')));
 
-httpServer.listen(port, function() {
-    console.log(`listening on *:${port}`);
-});
+io.addServer(httpServer);
 
 const games = new Map();
+const rooms = new Map();
 
-io.on('connection', function(socket) {
-    socket.on('createRoom', function(size) {
-        if (size >= 2 & size <= 10) {
-            const roomID = socket.id; 
+io.onConnection((channel) => {
+    channel.on('createRoom', (size) => {
+        if (size >= 2 && size <= 10) {
+            const roomId = channel.id; 
+            channel.join(roomId);
+            rooms.set(roomId, new Room(roomId, size, new Map([[channel.id, channel]])));
 
-            socket.join(roomID);
-
-            const room = socket.adapter.rooms.get(roomID);
-            room.gameStarted = false;
-            room.maxSize = size;
-
-            socket.emit('initRoomSettings', roomID);
-            socket.emit('changePlayerCounterInRoom', 1, size);
-            socket.emit('youEnteredRoom', 'creatingPage'); 
-
-            socket.roomID = roomID;
+            channel.emit('initRoomSettings', roomId);
+            channel.emit('changePlayerCounterInRoom', {numPlayers: 1, roomSize: size});
+            channel.emit('youEnteredRoom', 'creatingPage'); 
         }
     });
 
-    socket.on('joinRoom', function(roomID) {
-        const room = socket.adapter.rooms.get(roomID)
+    channel.on('joinRoom', (roomId) => {
+        const room = rooms.get(roomId);
         if (room && !room.gameStarted) {
-            const maxSize = room.maxSize; 
-            socket.join(roomID);
+            channel.join(roomId);
+            room.addChannel(channel);
 
-            socket.emit('youEnteredRoom', 'joiningPage');
-            socket.emit('initRoomSettings', roomID);
-            io.to(roomID).emit('changePlayerCounterInRoom', room.size, maxSize);
+            channel.emit('youEnteredRoom', 'joiningPage');
+            channel.emit('initRoomSettings', roomId);
+            io.room(roomId).emit('changePlayerCounterInRoom', {numPlayers: room.size, roomSize: room.maxSize});
 
-            socket.roomID = roomID;
-            if (room.size == maxSize) { 
-                io.to(roomID).emit('startGame');
+            if (room.size == room.maxSize) { 
+                io.room(roomId).emit('startGame');
                 room.gameStarted = true;
-                games.set(roomID, new PhaserGame(io, roomID));
+                //console.log(process.memoryUsage()); //утечка памяти наблюдается
+                games.set(roomId, new MatterGame(io, room));
             }
         }
     });
 
-    socket.on('leaveRoom', function() {
-        const roomID = socket.roomID;
-        if (roomID) {
-            const room = socket.adapter.rooms.get(roomID);
-            socket.leave(roomID);
+    channel.on('leaveRoom', () => {
+        const roomId = channel.roomId; 
+        if (roomId) {
+            const room = rooms.get(roomId);
+            channel.leave();
+            room.removeChannel(channel.id);
+
             if (!room.gameStarted) {
-                io.to(roomID).emit('changePlayerCounterInRoom', room.size, room.maxSize);			
+                io.room(roomId).emit('changePlayerCounterInRoom', {numPlayers: room.size, roomSize: room.maxSize});			
             }
-            socket.roomID = null;
         }
     });	
 
-    socket.on('disconnecting', function() {
-        const roomID = socket.roomID;
-        if (roomID) {
-            const room = socket.adapter.rooms.get(roomID);
+    channel.onDisconnect(() => {
+        const roomId = channel.roomId; 
+        if (roomId) {
+            const room = rooms.get(roomId);
+            room.removeChannel(channel.id);
+
             if (!room.gameStarted) {
-                io.to(roomID).emit('changePlayerCounterInRoom', room.size-1, room.maxSize);
+                io.room(roomId).emit('changePlayerCounterInRoom', {numPlayers: room.size, roomSize: room.maxSize});
             } else {
                 if (room.size == 1) {
-                    games.delete(roomID);
+                    games.get(roomId)?.destroy();
+                    games.delete(roomId);
                 } else {
-                    games.get(roomID).scene.scenes[0].events.emit('playerDisconnected', socket);
+                    games.get(roomId)?.scenes[0].playerDisconnected(channel);
                 }
             }
         }
     });
 
-    socket.on('movement', function(movement) {
-        const roomID = socket.roomID; 
-        if (roomID) {
-            games.get(roomID)?.scene.scenes[0].events.emit('movement', socket, movement);
+    channel.on('movement', function(movement) {
+        const roomId = channel.roomId; 
+        if (roomId) {
+            games.get(roomId)?.scenes[0].movement(channel, movement);
         } 
     });
 
-    socket.on('clientInitialized', function() {
-        const roomID = socket.roomID;
-        if (roomID) {
-            games.get(roomID)?.scene.scenes[0].events.emit('clientInitialized', socket);
+    channel.on('clientInitialized', function() {
+        const roomId = channel.roomId; 
+        if (roomId) {
+            games.get(roomId)?.scenes[0].clientInitialized(channel);
         }
     });
 
-    socket.on('addElement', function(element) {
-        const roomID = socket.roomID;
-        games.get(roomID)?.scene.scenes[0].events.emit('addElement', socket, element);
+    channel.on('addElement', function(element) {
+        const roomId = channel.roomId; 
+        games.get(roomId)?.scenes[0].addElement(channel, element);
     });
+});
+
+httpServer.listen(port, function() {
+    console.log(`listening on *:${port}`);
 });
