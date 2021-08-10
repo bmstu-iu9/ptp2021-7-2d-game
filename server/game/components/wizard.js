@@ -53,6 +53,13 @@ export class Wizard extends GameObject {
         this.#setSensorLabel();
 
         this._addBodies([this.mainBody, this.sensors.bottom, this.sensors.left, this.sensors.right]);
+        
+        // Disabling collisions between wizards
+        this.body.collisionFilter = {
+            category: 0x0001,
+            mask: 0xFFFFFFFF,
+            group: -1
+        }
 
         Matter.Body.setInertia(this.body, Infinity);
         Matter.Body.setPosition(this.body, {x, y});
