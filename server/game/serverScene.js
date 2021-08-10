@@ -11,13 +11,13 @@ import { arenaData, makeArena } from './components/arena.js';
 const SI = new SnapshotInterpolation();
 
 export class ServerScene {
-    constructor(io, roomID, gravity, fps) {
+    constructor(io, room, gravity, fps) {
         Matter.Common.setDecomp(decomp);
 
         this.players = new Map();
 
         this.io = io; 
-        this.roomID = roomID;
+        this.room = room;
         this.gravity = gravity;
         this.fps = fps;
 
@@ -34,42 +34,39 @@ export class ServerScene {
         this.arenaData = arenaData;
         this.arena = makeArena(this, this.arenaData.server, this.objectGroup);
 
-        const room = this.io.sockets.adapter.rooms.get(this.roomID); 
-        for (const socketID of room) {
-            const socket = this.io.sockets.sockets.get(socketID);
-
+        for (const channel of this.room.channels.values()) {
             const x = 1500;
             const wizard = new Wizard(this, x, 10, 
                                       ['elementNull', 'elementNull', 'elementNull', 'elementNull', 'elementNull'], 
-                                      socket.id);
+                                      channel.id);
             this.objectGroup.add(wizard);
 
-            this.players.set(socket.id, {
-                socket,
+            this.players.set(channel.id, {
+                channel,
                 wizard
             });
         }
 
-        this['clientInitialized'] = (socket) => {
-            socket.emit('createArena', this.arenaData.client);
+        this['clientInitialized'] = (channel) => {
+            channel.emit('createArena', this.arenaData.client);
         };
 
-        this['movement'] = (socket, movement) => {
-            const wizard = this.players.get(socket.id).wizard;
+        this['movement'] = (channel, movement) => {
+            const wizard = this.players.get(channel.id).wizard;
             wizard.move(movement);
         };
 
-        this['playerDisconnected'] = (socket, reason) => {
-            const player = this.players.get(socket.id);
+        this['playerDisconnected'] = (channel) => {
+            const player = this.players.get(channel.id);
             this.objectGroup.remove(player.wizard);
             player.wizard.destroy();
-            this.players.delete(socket.id);
+            this.players.delete(channel.id);
         };
 
-        this['addElement'] = (socket, element) => {
-            const wizard = this.players.get(socket.id).wizard;
+        this['addElement'] = (channel, element) => {
+            const wizard = this.players.get(channel.id).wizard;
             wizard.updateElements(element);
-            socket.emit('changeElements', wizard.elements);
+            channel.emit('changeElements', wizard.elements);
         };
 
         const collisionEvent = collisionFilter(this.objectGroup);
@@ -85,14 +82,14 @@ export class ServerScene {
 
         const wizardsData = [];
         this.players.forEach((player) => {
-            const { socket, wizard } = player;
-            wizardsData.push({ id: socket.id, x: wizard.body.position.x, y: wizard.body.position.y, 
+            const { channel, wizard } = player;
+            wizardsData.push({ id: channel.id, x: wizard.body.position.x, y: wizard.body.position.y, 
                                velocity: wizard.body.velocity });
         });
 
         const snapshot = SI.snapshot.create(wizardsData);
 
-        this.io.to(this.roomID).emit('snapshot', snapshot); 
+        this.io.room(this.room.id).emit('snapshot', snapshot); 
     }
 
     destroy() {

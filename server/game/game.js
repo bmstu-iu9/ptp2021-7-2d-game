@@ -1,13 +1,13 @@
 import { makeConfig } from "./config.js";
 
 export class MatterGame {
-    constructor(io, roomID) {
-        const config = makeConfig(io, roomID);
+    constructor(io, room) {
+        const config = makeConfig(io, room);
         for (const parameter in config) {
             this[parameter] = config[parameter];
         }
         this.io = io;
-        this.roomID = roomID;
+        this.room = this.room;
     }
 
     destroy() {

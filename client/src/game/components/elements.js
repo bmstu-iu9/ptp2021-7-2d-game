@@ -32,7 +32,7 @@ export class ElementsInterface extends Phaser.GameObjects.Container {
             this.add(elementPic);
         }
 
-        this.scene.socket.on('changeElements', (elements) => {
+        this.scene.channel.on('changeElements', (elements) => {
             this.changeElements(elements);
         });
     }
