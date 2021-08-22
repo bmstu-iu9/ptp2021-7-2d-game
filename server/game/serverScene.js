@@ -36,9 +36,8 @@ export class ServerScene {
 
         for (const channel of this.room.channels.values()) {
             const x = 1500;
-            const wizard = new Wizard(this, x, 10, 
-                                      ['elementNull', 'elementNull', 'elementNull', 'elementNull', 'elementNull'], 
-                                      channel.id);
+            const wizard = new Wizard(this, x, 50, 100, 100,
+                                      ['elementNull', 'elementNull', 'elementNull', 'elementNull', 'elementNull']);
             this.objectGroup.add(wizard);
 
             this.players.set(channel.id, {
@@ -83,8 +82,9 @@ export class ServerScene {
         const wizardsData = [];
         this.players.forEach((player) => {
             const { channel, wizard } = player;
-            wizardsData.push({ id: channel.id, x: wizard.body.position.x, y: wizard.body.position.y, 
-                               velocity: wizard.body.velocity });
+            wizardsData.push({ id: channel.id, 
+                               x: wizard.body.position.x, y: wizard.body.position.y, 
+                               velocity: wizard.body.velocity});
         });
 
         const snapshot = SI.snapshot.create(wizardsData);
