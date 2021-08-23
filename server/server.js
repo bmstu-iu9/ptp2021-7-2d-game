@@ -12,7 +12,7 @@ const io = geckos();
 const port = 27016;
 const dirname = path.resolve();
 
-app.get('/', function(req, res) {
+app.get('/', (req, res) => {
     res.sendFile(path.join(dirname, '/public/index.html'));
 });
 app.use('/dist', express.static(path.join(dirname, '/client/dist')));
@@ -87,26 +87,27 @@ io.onConnection((channel) => {
         }
     });
 
-    channel.on('movement', function(movement) {
+    channel.on('movement', (movement) => {
         const roomId = channel.roomId; 
-        if (roomId) {
-            games.get(roomId)?.scenes[0].movement(channel, movement);
-        } 
+        games.get(roomId)?.scenes[0].movement(channel, movement);
     });
 
-    channel.on('clientInitialized', function() {
+    channel.on('clientInitialized', () => {
         const roomId = channel.roomId; 
-        if (roomId) {
-            games.get(roomId)?.scenes[0].clientInitialized(channel);
-        }
+        games.get(roomId)?.scenes[0].clientInitialized(channel);
     });
 
-    channel.on('addElement', function(element) {
+    channel.on('addElement', (element) => {
         const roomId = channel.roomId; 
         games.get(roomId)?.scenes[0].addElement(channel, element);
     });
+
+    channel.on('drawnPoints', (points) => {
+        const roomId = channel.roomId; 
+        games.get(roomId)?.scenes[0].drawnPoints(channel, points);
+    });
 });
 
-httpServer.listen(port, function() {
+httpServer.listen(port, () => {
     console.log(`listening on *:${port}`);
 });

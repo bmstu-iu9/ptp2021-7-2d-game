@@ -31,6 +31,9 @@ export class InterfaceScene extends Phaser.Scene {
     create() {
         this.elementsInterface = new ElementsInterface(this, 5, 960, 1040, 360, 80, 60, 60, 10, 'elementNull', 'interfaceBackground');
 
+        // Drawing points
+        this.points = [];
+
         /* Particles for drawing
 
             TODO: make particles more visible
@@ -64,9 +67,23 @@ export class InterfaceScene extends Phaser.Scene {
         */
 
         if (this.input.mousePointer.isDown) {
+            const x = this.input.mousePointer.x;
+            const y = this.input.mousePointer.y;
+
+            if (this.points.length == 200) {
+                this.points.pop();
+            }
+            
+            this.points.push({ x, y });
+
             this.emitter.start();
-            this.emitter.setPosition(this.input.mousePointer.x, this.input.mousePointer.y);
+            this.emitter.setPosition(x, y);
         } else {
+            if (this.points.length > 0) {
+                this.channel.emit('drawnPoints', this.points);
+                this.points = [];
+            }
+
             this.emitter.stop();
         }
     }

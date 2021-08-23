@@ -7,6 +7,7 @@ import { GameObjectGroup } from './components/gameObjectGroup.js';
 import { Wizard } from './components/wizard.js';
 import { collisionFilter } from './components/collisions.js';
 import { arenaData, makeArena } from './components/arena.js';
+import { Recognizer } from './components/spellRecognition.js';
 
 const SI = new SnapshotInterpolation();
 
@@ -66,6 +67,12 @@ export class ServerScene {
             const wizard = this.players.get(channel.id).wizard;
             wizard.updateElements(element);
             channel.emit('changeElements', wizard.elements);
+        };
+
+        this['drawnPoints'] = (channel, points) => {
+            const wizard = this.players.get(channel.id).wizard;
+            const spellId = Recognizer.analyze(points);
+            // spellId handling...
         };
 
         const collisionEvent = collisionFilter(this.objectGroup);
