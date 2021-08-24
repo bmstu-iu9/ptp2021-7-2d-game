@@ -7,12 +7,16 @@ const patternData = [
     {spellId: 3, dirs: "020"},
     {spellId: 4, dirs: "16010"},
     {spellId: 5, dirs: "45670"},
-    {spellId: 6, dirs: "43210"}
+    {spellId: 6, dirs: "43210"},
+    {spellId: 7, dirs: "0610"},
+    {spellId: 8, dirs: "050"}
 ];
 
 export class Recognizer {
     static #requiredPointCount = 20;
     static #directionCount = this.#requiredPointCount - 1;
+    static #patternCount = patternData.length;
+    static #maxTolerance = 2;
 
     static #dirs = new Array(this.#directionCount).fill(0);
     static #inputPointsList;
@@ -42,8 +46,11 @@ export class Recognizer {
         this.#inputToDirs();
 
         const index = this.#findMatchingPattern();
-
-        return patternData[index].spellId;
+        if (index >= 0) {
+            return patternData[index].spellId;
+        } else {
+            return -1;
+        }
     }
 
     static #findKeyPoints(input) {
@@ -196,6 +203,63 @@ export class Recognizer {
     }
 
     static #findMatchingPattern() {
-        return 0;
+        let index = -1;
+        let min = Number.MAX_SAFE_INTEGER;
+
+        for (let i = 0; i < this.#patternCount; ++i) {
+            let refuse = false;
+            let errors = 0;
+
+            let patternIndex = 0;
+            let inputIndex = 0;
+            const patternSize = patternData[i].dirs.length;
+
+            let currPatternDir = Number(patternData[i].dirs[0]);
+            let nextPatternDir = Number(patternData[i].dirs[1]);
+            let currInputDir = this.#dirs[0];
+            let nextInputDir = this.#dirs[1];
+
+            while (inputIndex < this.#directionCount) {
+                const diff = this.#angleDiff(currPatternDir, currInputDir);
+                errors += diff;
+
+                if (diff > 1 || errors > this.#maxTolerance) {
+                    refuse = true;
+                    break;
+                }
+
+                if (patternIndex < patternSize - 1 && nextInputDir != currInputDir) {
+                    if ((nextPatternDir == nextInputDir || 
+                         this.#angleDiff(nextInputDir, currPatternDir) > this.#angleDiff(nextInputDir, nextPatternDir))) {
+                        ++patternIndex;
+                        currPatternDir = nextPatternDir;
+                        nextPatternDir = Number(patternData[i].dirs[patternIndex + 1]);
+                    }
+                }
+
+                currInputDir = nextInputDir;
+                nextInputDir = this.#dirs[inputIndex + 1];
+                ++inputIndex;
+            }
+
+            if (patternIndex < patternSize - 1 || refuse) {
+                continue;
+            }
+
+            if (errors < min) {
+                min = errors;
+                index = i;
+            }
+        }
+
+        if (min <= this.#maxTolerance) {
+            return index;
+        } else {
+            return -1;
+        }
+    }
+
+    static #angleDiff(x, y) {
+        return (4 - Math.abs(Math.abs(x - y) - 4));
     }
 }

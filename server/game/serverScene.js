@@ -72,6 +72,7 @@ export class ServerScene {
         this['drawnPoints'] = (channel, points) => {
             const wizard = this.players.get(channel.id).wizard;
             const spellId = Recognizer.analyze(points);
+            console.log("spellId: ", spellId);
             // spellId handling...
         };
 
