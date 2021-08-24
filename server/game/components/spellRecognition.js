@@ -44,16 +44,16 @@ export class Recognizer {
         const maxAngle = (2 / 3) * Math.PI;
 
         for (let i = 2; i < inputSize; ++i) {
-            const currPoint = input[i - 1];
+            const thisPoint = input[i - 1];
             const nextPoint = input[i];
 
-            const distance = Vector.length(Vector.difference(currPoint, lastKeyPoint));
+            const distance = Vector.length(Vector.difference(thisPoint, lastKeyPoint));
             if (distance > currTolerance) {
-                const angle = Vector.angle(Vector.difference(currPoint, lastKeyPoint),
-                                           Vector.difference(currPoint, nextPoint));
+                const angle = Vector.angle(Vector.difference(thisPoint, lastKeyPoint),
+                                           Vector.difference(thisPoint, nextPoint));
                 if (angle < maxAngle) {
                     this.#keyPointsIndices.push(i - 1);
-                    lastKeyPoint = currPoint;
+                    lastKeyPoint = thisPoint;
                 }
             }
         }
