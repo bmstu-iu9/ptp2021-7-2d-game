@@ -46,11 +46,32 @@ export class Vector {
         return Math.acos(Vector.dot(Vector.normalize(u), Vector.normalize(v)));
     }
 
+    static orientedAngle(u, v) {
+        const angle = Vector.angle(u, v);
+
+        if (Vector.epsilonEqual(Vector.normalize(v), Vector.normalize(Vector.rotate(u, angle)), 0.0001)) {
+            return angle;
+        } else {
+            return -angle;
+        }
+    }
+
+    static rotate(v, angle) {
+        const sin = Math.sin(angle);
+        const cos = Math.cos(angle);
+        return new Vector(v.x * cos - v.y * sin, v.x * sin + v.y * cos);
+    }
+
     static min(u, v) {
         return new Vector(Math.min(u.x, v.x), Math.min(u.y, v.y));
     }
 
     static max(u, v) {
         return new Vector(Math.max(u.x, v.x), Math.max(u.y, v.y));
+    }
+
+    static epsilonEqual(u, v, epsilon) {
+        return (Math.abs(u.x - v.x) < epsilon) &&
+               (Math.abs(u.y - v.y) < epsilon);
     }
 }

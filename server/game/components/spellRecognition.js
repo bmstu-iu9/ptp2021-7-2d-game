@@ -1,8 +1,10 @@
 import { Vector } from "./vector.js";
 
 export class Recognizer {
-    static requiredPointCount = 20;
+    static #requiredPointCount = 20;
+    static #directionCount = this.#requiredPointCount - 1;
 
+    static #dirs = new Array(this.#directionCount).fill(0);
     static #inputPointsList;
     static #keyPointsIndices;
     static #finalPointsList;
@@ -22,13 +24,15 @@ export class Recognizer {
         
         this.#findKeyPoints(this.#inputPointsList);
 
-        if (this.#keyPointsIndices.length > this.requiredPointCount) {
+        if (this.#keyPointsIndices.length > this.#requiredPointCount) {
             return;
         }
 
         this.#resampleInput(this.#inputPointsList);
 
-        // get dirs, find matching pattern
+        this.#inputToDirs();
+
+        // find matching pattern
     }
 
     static #findKeyPoints(input) {
@@ -91,14 +95,14 @@ export class Recognizer {
                 segmentLength += Vector.distance(input[index], input[index + 1]);
             }
 
-            const pointsToAddFloat = (segmentLength / totalLength) * (this.requiredPointCount - 1) + segmentRemains;
+            const pointsToAddFloat = (segmentLength / totalLength) * (this.#requiredPointCount - 1) + segmentRemains;
             let pointsToAdd = Math.round(pointsToAddFloat);
             segmentRemains = pointsToAddFloat - pointsToAdd;
 
             if (segment != segmentCount - 1) {
                 pointsAdded += pointsToAdd;
             } else {
-                pointsToAdd = (this.requiredPointCount - 1) - pointsAdded;
+                pointsToAdd = (this.#requiredPointCount - 1) - pointsAdded;
             }
 
             if (pointsToAdd == 0) {
@@ -156,5 +160,27 @@ export class Recognizer {
                 this.#finalPointsList.push(input[endIndex]);
             }
         }
+    }
+
+    static #inputToDirs() {
+        for (let i = 1; i < this.#finalPointsList.length; ++i) {
+            const dir = this.#quantizeAngleToDir(this.#angleVectorX(Vector.difference(this.#finalPointsList[i - 1],
+                                                                                      this.#finalPointsList[i])));
+            this.#dirs[i - 1] = dir;
+        }
+    }
+
+    static #quantizeAngleToDir(angle) {
+        return Math.round(angle / (Math.PI / 4)) % 8;
+    }
+
+    static #angleVectorX(v) {
+        let angle = Vector.orientedAngle(v, new Vector(1, 0));
+
+        if (angle < 0) {
+            angle += 2 * Math.PI;
+        }
+
+        return angle;
     }
 }
