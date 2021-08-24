@@ -1,4 +1,14 @@
-import { Vector } from "./vector.js";
+import { Vector } from "./vector.js"; 
+
+const patternData = [
+    {spellId: 0, dirs: "2"},
+    {spellId: 1, dirs: "0"},
+    {spellId: 2, dirs: "20"},
+    {spellId: 3, dirs: "020"},
+    {spellId: 4, dirs: "16010"},
+    {spellId: 5, dirs: "45670"},
+    {spellId: 6, dirs: "43210"}
+];
 
 export class Recognizer {
     static #requiredPointCount = 20;
@@ -29,10 +39,11 @@ export class Recognizer {
         }
 
         this.#resampleInput(this.#inputPointsList);
-
         this.#inputToDirs();
 
-        // find matching pattern
+        const index = this.#findMatchingPattern();
+
+        return patternData[index].spellId;
     }
 
     static #findKeyPoints(input) {
@@ -182,5 +193,9 @@ export class Recognizer {
         }
 
         return angle;
+    }
+
+    static #findMatchingPattern() {
+        return 0;
     }
 }
