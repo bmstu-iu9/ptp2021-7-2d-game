@@ -37,4 +37,12 @@ export class Vector {
     static angle(u, v) {
         return Math.acos(Vector.dot(Vector.normalize(u), Vector.normalize(v)));
     }
+
+    static min(u, v) {
+        return new Vector(Math.min(u.x, v.x), Math.min(u.y, v.y));
+    }
+
+    static max(u, v) {
+        return new Vector(Math.max(u.x, v.x), Math.max(u.y, v.y));
+    }
 }
