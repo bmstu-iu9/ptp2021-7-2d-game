@@ -8,8 +8,16 @@ export class Vector {
         return new Vector(v.x, v.y);
     }
 
+    static sum(u, v) {
+        return new Vector(u.x + v.x, u.y + v.y);
+    }
+
     static difference(u, v) {
         return new Vector(v.x - u.x, v.y - u.y);
+    }
+
+    static scalarMult(k, v) {
+        return new Vector(k * v.x, k * v.y);
     }
 
     static length(v) {
