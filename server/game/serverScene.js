@@ -7,6 +7,7 @@ import { GameObjectGroup } from './components/gameObjectGroup.js';
 import { Wizard } from './components/wizard.js';
 import { collisionFilter } from './components/collisions.js';
 import { arenaData, makeArena } from './components/arena.js';
+import { Recognizer } from './components/spellRecognition.js';
 
 const SI = new SnapshotInterpolation();
 
@@ -36,9 +37,8 @@ export class ServerScene {
 
         for (const channel of this.room.channels.values()) {
             const x = 1500;
-            const wizard = new Wizard(this, x, 10, 
-                                      ['elementNull', 'elementNull', 'elementNull', 'elementNull', 'elementNull'], 
-                                      channel.id);
+            const wizard = new Wizard(this, x, 50, 100, 100,
+                                      ['elementNull', 'elementNull', 'elementNull', 'elementNull', 'elementNull']);
             this.objectGroup.add(wizard);
 
             this.players.set(channel.id, {
@@ -69,6 +69,13 @@ export class ServerScene {
             channel.emit('changeElements', wizard.elements);
         };
 
+        this['drawnPoints'] = (channel, points) => {
+            const wizard = this.players.get(channel.id).wizard;
+            const spellId = Recognizer.analyze(points);
+            console.log("spellId: ", spellId);
+            // spellId handling...
+        };
+
         const collisionEvent = collisionFilter(this.objectGroup);
 
         Matter.Events.on(this.engine, 'collisionStart', collisionEvent);
@@ -83,8 +90,9 @@ export class ServerScene {
         const wizardsData = [];
         this.players.forEach((player) => {
             const { channel, wizard } = player;
-            wizardsData.push({ id: channel.id, x: wizard.body.position.x, y: wizard.body.position.y, 
-                               velocity: wizard.body.velocity });
+            wizardsData.push({ id: channel.id, 
+                               x: wizard.body.position.x, y: wizard.body.position.y, 
+                               velocity: wizard.body.velocity});
         });
 
         const snapshot = SI.snapshot.create(wizardsData);

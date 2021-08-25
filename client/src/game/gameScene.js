@@ -1,3 +1,5 @@
+import { Wizard } from './components/wizard';
+import { wizardTexturesData } from './components/wizardTexturesData';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 
 const SI = new SnapshotInterpolation(60);
@@ -24,17 +26,30 @@ export class GameScene extends Phaser.Scene {
         this.load.image('cloud2', 'public/assets/textures/Cloud2.png');
         this.load.image('cloud3', 'public/assets/textures/Cloud3.png');
         this.load.image('ground', 'public/assets/textures/Ground.png');
+
         this.load.spritesheet('wizard', 'public/assets/textures/wizard.png', {
             frameWidth: 32,
             frameHeight: 48
         });
+
+        this.load.image('hp-left-cap', 'public/assets/textures/barHorizontal_green_left.png');
+        this.load.image('hp-middle', 'public/assets/textures/barHorizontal_green_mid.png');
+        this.load.image('hp-right-cap', 'public/assets/textures/barHorizontal_green_right.png');
+    
+        this.load.image('mp-left-cap', 'public/assets/textures/barHorizontal_blue_left.png');
+        this.load.image('mp-middle', 'public/assets/textures/barHorizontal_blue_mid.png');
+        this.load.image('mp-right-cap', 'public/assets/textures/barHorizontal_blue_right.png');
+
+        this.load.image('shadow-left-cap', 'public/assets/textures/barHorizontal_shadow_left.png');
+        this.load.image('shadow-middle', 'public/assets/textures/barHorizontal_shadow_mid.png');
+        this.load.image('shadow-right-cap', 'public/assets/textures/barHorizontal_shadow_right.png');
 
         this.load.json('inputdata', 'public/settings/input.json');
     }
 
     create() {
         this.add.image(960, 540, 'background');
-
+        
         this.anims.create({
             key: 'left',
             frames: this.anims.generateFrameNumbers('wizard', { start: 0, end: 3 }),
@@ -91,22 +106,22 @@ export class GameScene extends Phaser.Scene {
             const exists = this.wizards.has(id);
 
             if (!exists) {
-                const wizard = this.add.sprite(x, y, 'wizard');
+                const wizard = new Wizard(this, x, y, 100, 100, wizardTexturesData);
                 if (id === this.channel.id) {
-                    wizard.depth = 1;
+                    wizard.makeMain();
                 }
                 this.wizards.set(id, wizard);
             } else {
                 const wizard = this.wizards.get(id);
                 wizard.setX(x);
                 wizard.setY(y);
-            
+                
                 if (velocity.x < -1) { 
-                    wizard.anims.play('left', true);
+                    wizard.playAnimation('left');
                 } else if (velocity.x > 1) {
-                    wizard.anims.play('right', true);
+                    wizard.playAnimation('right');
                 } else {
-                    wizard.anims.play('turn');
+                    wizard.playAnimation('turn');
                 }
             } 
         });

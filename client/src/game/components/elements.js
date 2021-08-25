@@ -11,7 +11,6 @@ export class ElementsInterface extends Phaser.GameObjects.Container {
     constructor(scene, maxElementCount, x, y, width, height, elementPicWidth, elementPicHeight, pxBetweenElements, elementNull, interfaceBackground) {
         super(scene, x, y);
 
-        this.scene = scene;
         this.maxElementCount = maxElementCount;
         this.width = width;
         this.height = height;

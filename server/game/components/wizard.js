@@ -23,8 +23,10 @@ export class Wizard extends GameObject {
         bottom: false
     };
 
-    constructor(scene, x, y, elements) {
+    constructor(scene, x, y, hp, mp, elements) {
         super(scene);
+        this.hp = hp;
+        this.mp = mp;
         this.elements = elements;
 
         const w = 32;
