@@ -20,6 +20,7 @@ and then draws a spell from them on the screen
 
 ## Controls:
 (you can also find them in public/settings/input.json)  
+draw a spell: ```LBM```  
 left: ```A```  
 right:```D```  
 jump: ```W```   
@@ -31,3 +32,6 @@ elementElectricity: ```Z```
 elementGround:      ```X```  
 elementCold:        ```C```  
 elementNull:        ```V```  
+
+## Extra info:
+The results of the spell recognition are displayed in the server console.
