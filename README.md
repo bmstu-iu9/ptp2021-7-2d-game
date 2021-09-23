@@ -17,3 +17,21 @@ and then draws a spell from them on the screen
 4. Run ```npm run build``` to build game once (do so if you are not planning to change client source code) or ```npm run start-dev``` for building game in real time (it is for developers).
 5. Run ```npm run start``` in main folder to start the local server (port 27016).
 6. Open ```http://localhost:27016/``` in your browser.
+
+## Controls:
+(you can also find them in public/settings/input.json)  
+draw a spell: ```LBM```  
+left: ```A```  
+right:```D```  
+jump: ```W```   
+elementFire:        ```ONE```  
+elementWater:       ```TWO```  
+elementLife:        ```THREE```  
+elementDeath:       ```FOUR```  
+elementElectricity: ```Z```  
+elementGround:      ```X```  
+elementCold:        ```C```  
+elementNull:        ```V```  
+
+## Extra info:
+The results of the spell recognition are displayed in the server console.
